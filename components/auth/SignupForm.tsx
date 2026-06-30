@@ -9,7 +9,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { signupSchema, type SignupSchema } from "@/lib/validations/signup.schema";
+import {
+  signupSchema,
+  type SignupSchema,
+} from "@/lib/validations/signup.schema";
 import { authService } from "@/services/auth.service";
 
 import { Button } from "@/components/ui/button";
@@ -26,10 +29,12 @@ export default function SignupForm() {
 
   const {
     register,
+    watch,
     handleSubmit,
     formState: { errors },
   } = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
+    mode: "onChange",
     defaultValues: {
       name: "",
       email: "",
@@ -37,6 +42,15 @@ export default function SignupForm() {
       confirmPassword: "",
     },
   });
+
+  const password = watch("password", "");
+
+  const isStrongPassword =
+    password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /\d/.test(password) &&
+    /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
   const onSubmit = async (data: SignupSchema) => {
     try {
@@ -49,17 +63,38 @@ export default function SignupForm() {
         password: data.password,
       });
 
-      router.push("/dashboard");
-    } catch (error) {
-      console.error(error);
+      await authService.logout();
+
+      router.push("/login");
+    } catch (error: any) {
+  console.error(error);
+
+  switch (error.code) {
+    case "auth/email-already-in-use":
+      setAuthError("An account with this email already exists.");
+      break;
+
+    case "auth/invalid-email":
+      setAuthError("Please enter a valid email address.");
+      break;
+
+    case "auth/weak-password":
+      setAuthError("Please choose a stronger password.");
+      break;
+
+    case "auth/network-request-failed":
+      setAuthError("No internet connection. Please try again.");
+      break;
+
+    default:
       setAuthError("Unable to create your account. Please try again.");
-    } finally {
+  }
+} finally {
       setLoading(false);
     }
   };
 
-  return (
-    <form
+  return (    <form
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-5"
       noValidate
@@ -119,7 +154,7 @@ export default function SignupForm() {
             type="button"
             aria-label={showPassword ? "Hide password" : "Show password"}
             onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
           >
             {showPassword ? (
               <EyeOff className="h-4 w-4" />
@@ -129,15 +164,24 @@ export default function SignupForm() {
           </button>
         </div>
 
-        {errors.password && (
+        {errors.password ? (
           <p className="text-sm text-destructive">
             {errors.password.message}
           </p>
+        ) : (
+          password !== "" &&
+          isStrongPassword && (
+            <p className="text-sm font-medium text-green-600">
+              ✓ Strong Password
+            </p>
+          )
         )}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Label htmlFor="confirmPassword">
+          Confirm Password
+        </Label>
 
         <div className="relative">
           <Input
@@ -153,12 +197,14 @@ export default function SignupForm() {
           <button
             type="button"
             aria-label={
-              showConfirmPassword ? "Hide password" : "Show password"
+              showConfirmPassword
+                ? "Hide password"
+                : "Show password"
             }
             onClick={() =>
               setShowConfirmPassword((prev) => !prev)
             }
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
           >
             {showConfirmPassword ? (
               <EyeOff className="h-4 w-4" />
