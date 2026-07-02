@@ -5,7 +5,15 @@ export const loginSchema = z.object({
     .string()
     .trim()
     .min(1, "Email is required.")
-    .email("Please enter a valid email address."),
+    .refine(
+      (value) =>
+        value.includes("@")
+          ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+          : true,
+      {
+        message: "Please enter a valid email address.",
+      }
+    ),
 
   password: z
     .string()

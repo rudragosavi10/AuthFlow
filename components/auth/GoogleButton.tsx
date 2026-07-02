@@ -9,6 +9,7 @@ import { authService } from "@/services/auth.service";
 
 export default function GoogleButton() {
   const router = useRouter();
+
   const [loading, setLoading] = useState(false);
 
   const handleGoogleSignIn = async () => {
@@ -20,7 +21,6 @@ export default function GoogleButton() {
       router.push("/dashboard");
     } catch (error) {
       console.error("Google sign-in failed:", error);
-      alert("Unable to sign in with Google. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -30,21 +30,37 @@ export default function GoogleButton() {
     <Button
       type="button"
       variant="outline"
-      className="h-11 w-full"
       disabled={loading}
       onClick={handleGoogleSignIn}
+      className="
+        h-12
+        w-full
+        rounded-2xl
+        border
+        border-slate-200
+        bg-white
+        font-semibold
+        text-slate-700
+        shadow-sm
+        transition-all
+        duration-300
+        hover:-translate-y-0.5
+        hover:border-indigo-200
+        hover:bg-white
+        hover:shadow-lg
+      "
     >
       {loading ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Signing in...
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          Connecting...
         </>
       ) : (
         <>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 48 48"
-            className="mr-2 h-5 w-5"
+            className="mr-3 h-5 w-5"
             aria-hidden="true"
           >
             <path

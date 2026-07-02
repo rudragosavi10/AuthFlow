@@ -128,3 +128,23 @@
     @apply font-sans;
   }
 }
+
+/* ===========================
+   Auth Page Transition
+=========================== */
+
+body.auth-page-transition main {
+  opacity: 0;
+  transform: scale(0.985);
+  filter: blur(0px);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    filter 160ms ease;
+}
+
+main {
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+}

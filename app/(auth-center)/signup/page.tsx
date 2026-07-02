@@ -9,14 +9,14 @@ export default function SignupPage() {
     <AuthCard>
       <AuthHeader
         title="Create your account"
-        description="Get started by creating your AuthFlow account."
+        description="Start building with AuthFlow in seconds."
       />
 
-      <SignupForm />
-
-      <Divider />
-
       <GoogleButton />
+
+      <Divider text="or continue with email" />
+
+      <SignupForm />
     </AuthCard>
   );
 }
