@@ -91,9 +91,13 @@ class AuthService {
     return credential;
   }
 
+  
   async resetPassword(email: string): Promise<void> {
-    await sendPasswordResetEmail(auth, email);
-  }
+  await sendPasswordResetEmail(auth, email, {
+    url: "https://auth-flow-six.vercel.app/login",
+    handleCodeInApp: false,
+  });
+}
 
   async logout(): Promise<void> {
     await signOut(auth);
